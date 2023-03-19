@@ -9,16 +9,14 @@ const { ENVIRONMENT, DB_PORT, DB_PASSWORD, DB_HOST, DB_NAME, DB_USER } =
 
 export const dbOptions = {
   type: 'postgres',
-  // url: DATABASE_URL,
   entities: ['dist/../*.entity{.ts,.js}'],
   password: DB_PASSWORD,
   host: DB_HOST,
-  databse: DB_NAME,
+  database: DB_NAME,
   username: DB_USER,
-  port: DB_PORT,
+  port: +DB_PORT,
   migrations: ['dist/db/migrations/*.js'],
-  // synchronize: ENVIRONMENT === 'dev',
-  synchronize: true,
+  synchronize: ENVIRONMENT === 'dev',
   autoLoadEntities: true,
   ssl: ENVIRONMENT === 'dev' ? false : { rejectUnauthorized: false },
 };
