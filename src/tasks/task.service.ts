@@ -1,3 +1,4 @@
+import { CreateTaskDTO } from './dto/task-create.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm/repository/Repository';
@@ -9,5 +10,9 @@ export class TaskService {
 
   findAll() {
     return this.taskRepo.find();
+  }
+
+  add(task: CreateTaskDTO) {
+    return this.taskRepo.save(task);
   }
 }
