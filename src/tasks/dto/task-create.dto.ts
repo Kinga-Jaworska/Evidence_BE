@@ -1,4 +1,4 @@
 export class CreateTaskDTO {
-  name: string;
-  category: string;
+  title: string;
+  description: string;
 }

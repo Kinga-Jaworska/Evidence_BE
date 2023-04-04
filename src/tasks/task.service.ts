@@ -8,11 +8,15 @@ import { Task } from './task.entity';
 export class TaskService {
   constructor(@InjectRepository(Task) private taskRepo: Repository<Task>) {}
 
-  findAll() {
+  async findAll() {
     return this.taskRepo.find();
   }
 
   add(task: CreateTaskDTO) {
     return this.taskRepo.save(task);
+  }
+
+  findOne(id: number) {
+    return this.taskRepo.findOneBy({ id });
   }
 }

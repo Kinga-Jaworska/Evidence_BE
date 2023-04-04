@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { TimeSlot } from 'src/time-slot/time-slot.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Task {
@@ -6,8 +7,11 @@ export class Task {
   id: number;
 
   @Column({ type: 'varchar', length: 255 })
-  name: string;
+  title: string;
 
   @Column({ type: 'varchar', length: 255 })
-  category: string;
+  description: string;
+
+  @OneToMany(() => TimeSlot, (time_slot) => time_slot.id)
+  time_slots: TimeSlot[];
 }
