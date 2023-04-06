@@ -1,12 +1,13 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { Optional } from '@nestjs/common';
+// import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class TaskEditTimeDTO {
-  @IsNotEmpty()
+  @Optional()
   start_time: string;
 
-  @IsNotEmpty()
+  @Optional()
   end_time: string;
 
-  @IsNumber()
+  @Optional()
   duration: number;
 }

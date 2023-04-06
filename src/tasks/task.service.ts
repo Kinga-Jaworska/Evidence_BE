@@ -9,7 +9,7 @@ import { EditTaskDTO } from './dto/task-edit.dto';
 export class TaskService {
   constructor(@InjectRepository(Task) private taskRepo: Repository<Task>) {}
 
-  async findAll() {
+  findAll() {
     return this.taskRepo.find();
   }
 

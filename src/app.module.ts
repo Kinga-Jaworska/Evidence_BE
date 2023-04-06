@@ -8,6 +8,7 @@ import { Task } from './tasks/task.entity';
 import { TaskService } from './tasks/task.service';
 import { TimeSlot } from './time-slot/time-slot.entity';
 import { TimeSlotService } from './time-slot/time-slot.service';
+import { TimeSlotController } from './time-slot/time-slot.controller';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { TimeSlotService } from './time-slot/time-slot.service';
     }),
     TypeOrmModule.forFeature([Task, TimeSlot]),
   ],
-  controllers: [AppController, TaskController],
+  controllers: [AppController, TaskController, TimeSlotController],
   providers: [AppService, TaskService, TimeSlotService],
 })
 export class AppModule {}
