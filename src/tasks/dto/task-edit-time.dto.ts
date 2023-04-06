@@ -1,5 +1,4 @@
 import { Optional } from '@nestjs/common';
-// import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class TaskEditTimeDTO {
   @Optional()

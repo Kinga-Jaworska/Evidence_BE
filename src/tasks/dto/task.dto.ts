@@ -6,7 +6,7 @@ export class TaskDTO {
 
   @IsString()
   @IsOptional()
-  description: string;
+  description?: string;
 
   @IsNotEmpty()
   start_time: string;
