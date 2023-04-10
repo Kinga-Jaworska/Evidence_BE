@@ -1,5 +1,11 @@
 import { Task } from 'src/tasks/task.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class TimeSlot {
@@ -16,5 +22,6 @@ export class TimeSlot {
   duration: number;
 
   @ManyToOne(() => Task, (task: Task) => task.time_slots)
+  @JoinColumn({ name: 'task_id' })
   task: Task;
 }

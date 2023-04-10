@@ -12,6 +12,9 @@ export class Task {
   @Column({ type: 'varchar', length: 255 })
   description: string;
 
-  @OneToMany(() => TimeSlot, (time_slot) => time_slot.id)
+  @Column()
+  user_id: number;
+
+  @OneToMany(() => TimeSlot, (time_slot) => time_slot.task)
   time_slots: TimeSlot[];
 }

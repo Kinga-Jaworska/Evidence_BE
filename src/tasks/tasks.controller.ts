@@ -19,6 +19,11 @@ export class TaskController {
     this.taskService.findAll();
   }
 
+  @Get(':id')
+  async getSelectedUserTasks(@Param('id') id) {
+    return this.taskService.findPerUser(id);
+  }
+
   @Post()
   async add(@Body() createTask: TaskDTO) {
     const task = await this.taskService.add(createTask);

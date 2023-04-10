@@ -12,7 +12,7 @@ export class TimeSlotController {
 
   @Get()
   async getAll() {
-    this.timeSlotService.findAll();
+    return this.timeSlotService.findAll();
   }
 
   @Put(':id')
@@ -21,5 +21,10 @@ export class TimeSlotController {
     @Param('id') id: number,
   ) {
     return this.timeSlotService.edit(editTimeSlot, id);
+  }
+
+  @Get('date')
+  async getTaskPerDate() {
+    return this.timeSlotService.getTaskPerDate();
   }
 }
