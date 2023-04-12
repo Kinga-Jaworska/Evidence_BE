@@ -1,7 +1,7 @@
 import { TimeSlot } from 'src/time-slot/time-slot.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity('tasks')
 export class Task {
   @PrimaryGeneratedColumn()
   id: number;

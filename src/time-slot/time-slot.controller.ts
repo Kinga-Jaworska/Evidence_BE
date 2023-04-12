@@ -22,9 +22,4 @@ export class TimeSlotController {
   ) {
     return this.timeSlotService.edit(editTimeSlot, id);
   }
-
-  @Get('date')
-  async getTaskPerDate() {
-    return this.timeSlotService.getTaskPerDate();
-  }
 }

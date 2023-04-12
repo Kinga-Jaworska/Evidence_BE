@@ -1,10 +1,10 @@
+import { Body, Controller, Get, Injectable, Post } from '@nestjs/common';
 import { Param, Patch, Put } from '@nestjs/common/decorators';
-import { TaskService } from './task.service';
-import { Body, Controller, Get, Post, Injectable } from '@nestjs/common';
 import { TimeSlotService } from 'src/time-slot/time-slot.service';
-import { TaskDTO } from './dto/task.dto';
 import { TaskEditTimeDTO } from './dto/task-edit-time.dto';
 import { EditTaskDTO } from './dto/task-edit.dto';
+import { TaskDTO } from './dto/task.dto';
+import { TaskService } from './task.service';
 
 @Injectable()
 @Controller('api/v1/tasks')
@@ -20,7 +20,7 @@ export class TaskController {
   }
 
   @Get(':id')
-  async getSelectedUserTasks(@Param('id') id) {
+  async getSelectedUserTasks(@Param('id') id: number) {
     return this.taskService.findPerUser(id);
   }
 
