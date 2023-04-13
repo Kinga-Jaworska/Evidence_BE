@@ -13,6 +13,24 @@ export class TaskService {
     return this.taskRepo.find();
   }
 
+  testCSV = () => {
+    // Task name -> row
+    // Start_time -> column
+    // Duration -> cell
+    const headers = [
+      { id: 1, title: '06-09-2021' },
+      { id: 2, title: '01-09-2021' },
+      // { id: 'email', title: 'Email' },
+    ];
+
+    const data = [
+      { id: 1, name: 'John Doe', email: 'john.doe@example.com' },
+      { id: 2, name: 'Jane Doe', email: 'jane.doe@example.com' },
+      { id: 3, name: 'Bob Smith', email: 'bob.smith@example.com' },
+    ];
+    return;
+  };
+
   async findPerUser(id: number) {
     const tasks = await this.taskRepo
       .createQueryBuilder('tasks')
@@ -26,10 +44,6 @@ export class TaskService {
       .groupBy('tasks.title')
       .addGroupBy('time_slots.start_time')
       .getRawMany();
-
-    // Task name -> row
-    // Start_time -> column
-    // Duration -> cell
 
     return tasks;
   }
