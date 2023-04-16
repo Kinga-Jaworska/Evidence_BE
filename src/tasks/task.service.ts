@@ -7,12 +7,12 @@ import { EditTaskDTO } from './dto/task-edit.dto';
 import { Task } from './task.entity';
 
 interface CSVData {
-  tasks_title: string;
-  time_slots_start_time: string;
+  title: string;
+  start_time: string;
   duration: string;
 }
 
-interface CVSsumsData {
+interface CSVSumData {
   start_time: string;
 }
 
@@ -34,67 +34,67 @@ export class TaskService {
     return dates;
   }
 
-  testCSV = async (data: CSVData[], sums: CVSsumsData[]) => {
+  formatDate(dateToFormat: Date) {
+    const date = new Date(dateToFormat);
+
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const year = date.getFullYear();
+
+    const formattedDate = `${day.toString().padStart(2, '0')}-${month
+      .toString()
+      .padStart(2, '0')}-${year}`;
+    return formattedDate;
+  }
+
+  generateCSV = async (data: CSVData[], sums: CSVSumData[]) => {
     const start = new Date('2021-09-01');
     const end = new Date('2021-09-30');
     const dates = [];
 
-    for (let date = start; date <= end; date.setDate(date.getDate() + 1)) {
-      const dateToFormat = new Date(date);
-      const yyyy = dateToFormat.getFullYear();
-      let mm = (dateToFormat.getMonth() + 1).toString(); // Months start at 0!
-      let dd = dateToFormat.getDate().toString();
-
-      if (+dd < 10) dd = '0' + dd;
-      if (+mm < 10) mm = '0' + mm;
-
-      const formattedToday = dd + '-' + mm + '-' + yyyy;
-      dates.push(formattedToday);
+    for (
+      let date = start;
+      date <= end;
+      date.setDate(date.getDate() + 1) // TODO: make this for every month
+    ) {
+      dates.push(this.formatDate(date));
     }
 
-    // Create one object per each tasks title
-    // Structure like this:
-    // title1: { date_1: duration, date_2: duration }
-    // Example: 'Task new 5': { '01-09-2021': '100', '06-09-2021': '30' },
-
-    let table = data.reduce((savedRow, record) => {
-      const { tasks_title, time_slots_start_time, duration } = record;
-      if (!savedRow[tasks_title]) {
-        savedRow[tasks_title] = {};
-      }
-      savedRow[tasks_title][time_slots_start_time] = duration;
-
-      return savedRow;
-    }, {});
-
-    // add to data this sum query?
-
     let rowsum = { sum: {} };
-    table = { ...table, ...rowsum };
+    data = { ...data, ...rowsum };
 
     // Create rows per each task
-    // Structure:
-
-    let rows = Object.keys(table).map((task_title) => {
-      const time_slots = table[task_title];
-      const row = { task_title };
+    let overall_amount = 0;
+    let rows = Object.keys(data).map((title) => {
+      const time_slots = data[title];
+      const row = { title };
+      let task_amount = 0;
 
       dates.forEach((date) => {
         row[date] = time_slots[date] ? `${time_slots[date]}` : '';
-        if (task_title === 'sum') row[date] = sums[date];
+        task_amount += Number(time_slots[date]) || 0;
+
+        row['task_amount'] = task_amount;
+
+        if (title === 'sum') {
+          row[date] = sums[date];
+          row['task_amount'] = overall_amount;
+        }
       });
 
+      overall_amount += task_amount;
       return row;
     });
 
     const csvWriter = createObjectCsvWriter({
       path: 'data.csv',
       header: [
-        { id: 'task_title', title: 'Title' }, // id: task_title -> assigned to ID of task_title prop
+        { id: 'title', title: 'Title' },
         ...dates.map((date) => ({
           id: date,
           title: date,
         })),
+        { id: 'task_amount', title: 'Amount per task row' },
       ],
     });
 
@@ -113,14 +113,13 @@ export class TaskService {
       .groupBy('time_slots.start_time')
       .getRawMany()
       .then((results) => {
+        // Create key value obj for each date (key-date, value-sumOfDuration)
+        // Example: '01-09-2021': '100'
         const formattedResults = [];
-
-        results.forEach((result) => {
-          const startTime = result.start_time;
-          const duration = result.duration;
-          formattedResults[startTime] = duration;
+        results.forEach(({ start_time, duration }) => {
+          formattedResults[start_time] = duration;
         });
-        console.log(formattedResults);
+
         return formattedResults;
       });
   }
@@ -131,16 +130,30 @@ export class TaskService {
       .leftJoinAndSelect('tasks.time_slots', 'time_slots')
       .where('tasks.user_id = :id', { id })
       .select([
-        'tasks.title',
-        'time_slots.start_time',
+        'tasks.title as title',
+        'time_slots.start_time AS start_time',
         'SUM(time_slots.duration) AS duration',
       ])
       .groupBy('tasks.title')
       .addGroupBy('time_slots.start_time')
-      .getRawMany();
+      .getRawMany()
+      .then((results) => {
+        // Create one object per each tasks title
+        // Example: 'Task new 5': { '01-09-2021': '100', '06-09-2021': '30' }
+
+        return results.reduce((savedRow, record) => {
+          const { title, start_time, duration } = record;
+          if (!savedRow[title]) {
+            savedRow[title] = {};
+          }
+          savedRow[title][start_time] = duration;
+
+          return savedRow;
+        }, {});
+      });
 
     const sums = await this.getsumForEachDay(id);
-    this.testCSV(tasks, sums);
+    this.generateCSV(tasks, sums);
 
     return tasks;
   }
