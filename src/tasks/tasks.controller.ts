@@ -33,7 +33,6 @@ export class TaskController {
   @Put(':id')
   async editTime(@Body() editTask: TaskEditTimeDTO, @Param('id') id: number) {
     const task = await this.taskService.findOne(id);
-    console.log(task);
     return this.timeSlotService.add({ task, ...editTask });
   }
 

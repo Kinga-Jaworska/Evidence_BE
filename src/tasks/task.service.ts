@@ -37,8 +37,8 @@ export class TaskService {
       .groupBy('time_slots.start_time')
       .getRawMany()
       .then((results) => {
-        // Create key value obj for each date (key-date, value-sumOfDuration)
-        // Example: '01-09-2021': '100'
+        /* Create key value obj for each date (key-date, value-sumOfDuration)
+        Example: '01-09-2021': '100' */
 
         const formattedResults = [];
         results.forEach(({ start_time, duration }) => {
@@ -63,8 +63,8 @@ export class TaskService {
       .addGroupBy('time_slots.start_time')
       .getRawMany()
       .then((results) => {
-        // Create one object per each tasks title
-        // Example: 'Task new 5': { '01-09-2021': '100', '06-09-2021': '30' }
+        /* Create one object per each tasks title
+        Example: 'Task new 5': { '01-09-2021': '100', '06-09-2021': '30' } */
 
         return results.reduce((savedRow, record) => {
           const { title, start_time, duration } = record;
