@@ -21,7 +21,7 @@ export class TaskController {
 
   @Get(':id')
   async getSelectedUserTasks(@Param('id') id: number) {
-    return this.taskService.findPerUser(id);
+    return this.taskService.getGroupedTasksForUser(id);
   }
 
   @Post()

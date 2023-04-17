@@ -49,7 +49,7 @@ export class TaskService {
       });
   }
 
-  async findPerUser(id: number) {
+  async getGroupedTasksForUser(id: number) {
     const tasks = await this.taskRepo
       .createQueryBuilder('tasks')
       .leftJoinAndSelect('tasks.time_slots', 'time_slots')
