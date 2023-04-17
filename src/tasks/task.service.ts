@@ -25,7 +25,7 @@ export class TaskService {
     return this.taskRepo.save(task);
   }
 
-  async getsumForEachDay(id: number) {
+  async getSumPerEachDay(id: number) {
     return await this.taskRepo
       .createQueryBuilder('tasks')
       .leftJoinAndSelect('tasks.time_slots', 'time_slots')
@@ -49,7 +49,7 @@ export class TaskService {
       });
   }
 
-  async getGroupedTasksForUser(id: number) {
+  async getGroupedTasksPerUser(id: number) {
     const tasks = await this.taskRepo
       .createQueryBuilder('tasks')
       .leftJoinAndSelect('tasks.time_slots', 'time_slots')
@@ -77,7 +77,7 @@ export class TaskService {
         }, {});
       });
 
-    const sums = await this.getsumForEachDay(id);
+    const sums = await this.getSumPerEachDay(id);
     this.csvService.generateCSV(tasks, sums, 4);
 
     return tasks;
