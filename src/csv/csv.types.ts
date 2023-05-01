@@ -4,6 +4,6 @@ export type CSVData = {
   duration: string;
 };
 
-export type CSVSumData = {
-  start_time: string;
+export type AmountsPerDay = {
+  [key: string]: string;
 };

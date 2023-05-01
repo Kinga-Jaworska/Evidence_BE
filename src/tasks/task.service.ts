@@ -25,31 +25,8 @@ export class TaskService {
     return this.taskRepo.save(task);
   }
 
-  async getSumPerEachDay(id: number) {
-    return await this.taskRepo
-      .createQueryBuilder('tasks')
-      .leftJoinAndSelect('tasks.time_slots', 'time_slots')
-      .where('tasks.user_id = :id', { id })
-      .select([
-        'time_slots.start_time AS start_time',
-        'SUM(time_slots.duration) AS duration',
-      ])
-      .groupBy('time_slots.start_time')
-      .getRawMany()
-      .then((results) => {
-        /* Create key value obj for each date (key-date, value-sumOfDuration)
-        Example: '01-09-2021': '100' */
-
-        const formattedResults = [];
-        results.forEach(({ start_time, duration }) => {
-          formattedResults[start_time] = duration;
-        });
-
-        return formattedResults;
-      });
-  }
-
   async getGroupedTasksPerUser(id: number) {
+    let amountsPerDay = {};
     const tasks = await this.taskRepo
       .createQueryBuilder('tasks')
       .leftJoinAndSelect('tasks.time_slots', 'time_slots')
@@ -63,24 +40,32 @@ export class TaskService {
       .addGroupBy('time_slots.start_time')
       .getRawMany()
       .then((results) => {
-        /* Create one object per each tasks title
-        Example: 'Task new 5': { '01-09-2021': '100', '06-09-2021': '30' } */
-
+        /* 
+        Create one object per each tasks title
+          Example: 'Task new 5': { '01-09-2021': '100', '06-09-2021': '30' } 
+        Create one object per each date with overall amount
+          Example: { '01-09-2021': '100', '02-09-2021': '30' } 
+        */
         return results.reduce((savedRow, record) => {
           const { title, start_time, duration } = record;
+
           if (!savedRow[title]) {
             savedRow[title] = {};
           }
+
+          if (!amountsPerDay[start_time]) {
+            amountsPerDay[start_time] = {};
+          }
+
           savedRow[title][start_time] = duration;
+          amountsPerDay[start_time] =
+            (Number(amountsPerDay[start_time]) || 0) + Number(duration);
 
           return savedRow;
         }, {});
       });
 
-    const sums = await this.getSumPerEachDay(id);
-    this.csvService.generateCSV(tasks, sums, 4);
-
-    return tasks;
+    return this.csvService.generateCSV(tasks, amountsPerDay, 4);
   }
 
   async edit(task: EditTaskDTO, id: number) {

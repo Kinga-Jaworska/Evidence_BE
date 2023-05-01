@@ -1,13 +1,13 @@
 export const getMonthName = (monthIndex: number) => {
   switch (monthIndex) {
     case 1:
-      return 'Styczeń';
+      return 'Styczen';
     case 2:
       return 'Luty';
     case 3:
       return 'Marzec';
     case 4:
-      return 'Kwiecień';
+      return 'Kwiecien';
     case 5:
       return 'Maj';
     case 6:
@@ -15,15 +15,15 @@ export const getMonthName = (monthIndex: number) => {
     case 7:
       return 'Lipiec';
     case 8:
-      return 'Sierpień';
+      return 'Sierpien';
     case 9:
-      return 'Wrzesień';
+      return 'Wrzesien';
     case 10:
-      return 'Październik';
+      return 'Pazdziernik';
     case 11:
       return 'Listopad';
     case 12:
-      return 'Grudzień';
+      return 'Grudzien';
     default:
       return '';
   }
