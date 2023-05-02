@@ -14,16 +14,6 @@ export class TaskController {
     private timeSlotService: TimeSlotService,
   ) {}
 
-  // @Get()
-  // async getAll(':id') {
-  //   return this.taskService.findAll();
-  // }
-
-  // @Get()
-  // async getAll() {
-  //   return this.taskService.findAll();
-  // }
-
   // Default -> all for current month
   // Group by month
   @Get()
