@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Injectable, Post } from '@nestjs/common';
-import { Param, Patch, Put, Res } from '@nestjs/common/decorators';
-import { Response } from 'express';
+import { Param, Patch, Put } from '@nestjs/common/decorators';
 import { TimeSlotService } from 'src/time-slot/time-slot.service';
 import { TaskEditTimeDTO } from './dto/task-edit-time.dto';
 import { EditTaskDTO } from './dto/task-edit.dto';
@@ -15,23 +14,22 @@ export class TaskController {
     private timeSlotService: TimeSlotService,
   ) {}
 
+  // @Get()
+  // async getAll(':id') {
+  //   return this.taskService.findAll();
+  // }
+
+  // @Get()
+  // async getAll() {
+  //   return this.taskService.findAll();
+  // }
+
+  // Default -> all for current month
+  // Group by month
   @Get()
-  async getAll() {
-    return this.taskService.findAll();
-  }
-
-  @Get(':id')
-  async getSelectedUserTasks(@Res() res: Response, @Param('id') id: number) {
-    const csvBlob = await this.taskService.getGroupedTasksPerUser(id);
-    console.log('BLOB', csvBlob);
-
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader(
-      'Content-Disposition',
-      'attachment; filename="my-csv-file.csv"',
-    );
-    res.setHeader('Content-Type', 'application/octet-stream');
-    return res.send(csvBlob);
+  async getUserTaskPerDates() {
+    // TODO: Passing user ID and month
+    return await this.taskService.getAllTaskPerDate(2);
   }
 
   @Post()

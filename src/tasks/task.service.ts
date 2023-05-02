@@ -32,12 +32,12 @@ export class TaskService {
       .leftJoinAndSelect('tasks.time_slots', 'time_slots')
       .where('tasks.user_id = :id', { id })
       .select([
-        'tasks.title AS title',
         'time_slots.start_time AS start_time',
+        'tasks.title AS title',
         'SUM(time_slots.duration) AS duration',
       ])
-      .groupBy('tasks.title')
-      .addGroupBy('time_slots.start_time')
+      .groupBy('time_slots.start_time')
+      .addGroupBy('tasks.title')
       .getRawMany()
       .then((results) => {
         /* 
@@ -66,6 +66,36 @@ export class TaskService {
       });
 
     return this.csvService.generateCSV(tasks, amountsPerDay, 4);
+  }
+
+  async getAllTaskPerDate(id: number) {
+    // Returning task for user per each date
+    // Example: [{'20-05-2023'}: Task[],{'21-05-2023'}: Task[]]
+    const tasks = await this.taskRepo
+      .createQueryBuilder('tasks')
+      .innerJoin('tasks.time_slots', 'time_slots')
+      .where('tasks.user_id = :id', { id })
+      .select([
+        'time_slots.start_time AS start_time',
+        'tasks.title AS title',
+        'duration',
+      ])
+      .getRawMany()
+      .then((results) => {
+        return results.reduce((savedTask, task) => {
+          const { start_time } = task;
+
+          if (!savedTask[start_time]) {
+            savedTask[start_time] = [];
+          }
+
+          savedTask[start_time] = [task, ...savedTask[start_time]];
+
+          return savedTask;
+        }, {});
+      });
+
+    return tasks;
   }
 
   async edit(task: EditTaskDTO, id: number) {

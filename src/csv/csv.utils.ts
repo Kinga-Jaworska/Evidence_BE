@@ -45,7 +45,6 @@ export const formatDate = (dateToFormat: Date) => {
 export const generateListOfDates = (month: number) => {
   const year = new Date().getFullYear();
   const daysInMonth = new Date(year, month, 0).getDate();
-  console.log(daysInMonth);
 
   const dates = [];
   for (let day = 1; day <= daysInMonth; day++) {

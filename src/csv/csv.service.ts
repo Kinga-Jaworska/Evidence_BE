@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { createObjectCsvStringifier, createObjectCsvWriter } from 'csv-writer';
+import { createObjectCsvWriter } from 'csv-writer';
 import { AmountsPerDay, CSVData } from './csv.types';
 import { generateListOfDates, getMonthName } from './csv.utils';
 
@@ -38,8 +38,9 @@ export class CSVService {
       return row;
     });
 
+    const path = `${getMonthName(monthIndex)}-evidence.csv`;
     const csvWriter = createObjectCsvWriter({
-      path: `${getMonthName(monthIndex)}-evidence.csv`,
+      path,
       header: [
         { id: 'title', title: 'Title' },
         ...dates.map((date) => ({
@@ -51,45 +52,6 @@ export class CSVService {
     });
 
     csvWriter.writeRecords(rows);
-
-    const csvStringifier = createObjectCsvStringifier({
-      header: [
-        { id: 'title', title: 'Title' },
-        ...dates.map((date) => ({
-          id: date,
-          title: date,
-        })),
-        { id: 'task_amount', title: 'Amount per task row' },
-      ],
-    });
-
-    const csvContent =
-      csvStringifier.getHeaderString() + csvStringifier.stringifyRecords(rows);
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-
-    return blob;
-
-    // const writable = new Writable();
-    // const chunks: Uint8Array[] = [];
-
-    // writable._write = (chunk, encoding, next) => {
-    //   chunks.push(chunk);
-    //   next();
-    // };
-
-    // writable.on('finish', () => {
-    //   const blob = new Blob(chunks, { type: 'text/csv' });
-    //   // Do something with the blob
-    // });
-
-    // await csvWriter.writeRecords(records).pipe(writable);
-
-    //   const csvContent = await csvWriter.writeToString(rows);
-    //   const blob = new Blob([csvContent], { type: 'text/csv' });
-
-    //   return blob;
-    // };
-
-    //   csvWriter.writeRecords(rows);
+    return path;
   };
 }

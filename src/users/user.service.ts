@@ -7,7 +7,7 @@ import { User } from './user.entity';
 export class UserService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
-  getUserTasks(id) {
+  getUserTasks(id: number) {
     return this.userRepo.findOneBy({ id });
   }
 
