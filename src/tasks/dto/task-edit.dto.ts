@@ -1,10 +1,18 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsOptional } from 'class-validator';
 
 export class EditTaskDTO {
-  @IsString()
+  @IsOptional()
   title: string;
 
-  @IsString()
   @IsOptional()
   description: string;
+
+  @IsOptional()
+  start_time: string;
+
+  @IsOptional()
+  end_time: string;
+
+  @IsOptional()
+  duration: number;
 }

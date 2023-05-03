@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CSVService } from 'src/csv/csv.service';
+import { TimeSlot } from 'src/time-slot/time-slot.entity';
 import { Repository } from 'typeorm/repository/Repository';
 import { CreateTaskDTO } from './dto/task-create.dto';
 import { EditTaskDTO } from './dto/task-edit.dto';
@@ -10,6 +11,7 @@ import { Task } from './task.entity';
 export class TaskService {
   constructor(
     @InjectRepository(Task) private taskRepo: Repository<Task>,
+    @InjectRepository(TimeSlot) private timeSlotRepo: Repository<TimeSlot>,
     private csvService: CSVService,
   ) {}
 
@@ -77,19 +79,21 @@ export class TaskService {
       .where('tasks.user_id = :id', { id })
       .select([
         'time_slots.start_time AS start_time',
+        'time_slots.id AS slot_id',
         'tasks.title AS title',
+        'tasks.id AS id',
         'duration',
       ])
       .getRawMany()
       .then((results) => {
         return results.reduce((savedTask, task) => {
-          const { start_time } = task;
+          const { title } = task;
 
-          if (!savedTask[start_time]) {
-            savedTask[start_time] = [];
+          if (!savedTask[title]) {
+            savedTask[title] = [];
           }
 
-          savedTask[start_time] = [task, ...savedTask[start_time]];
+          savedTask[title] = [task, ...savedTask[title]];
 
           return savedTask;
         }, {});
@@ -98,8 +102,26 @@ export class TaskService {
     return tasks;
   }
 
-  async edit(task: EditTaskDTO, id: number) {
-    const foundTask = await this.taskRepo.findOneBy({ id });
-    return this.taskRepo.save({ ...foundTask, ...task });
+  async edit(editTask: EditTaskDTO, slotID: number) {
+    const { title, description, ...slot } = editTask;
+    const { task, ...timeSlot } = await this.timeSlotRepo.findOne({
+      where: {
+        id: slotID,
+      },
+      relations: ['task'],
+    });
+
+    const newTimeSlot = { ...timeSlot, ...slot };
+
+    const newTask = {
+      ...task,
+      ...(title && { title }),
+      ...(description && { description }),
+    };
+
+    return await Promise.all([
+      this.taskRepo.save({ ...newTask }),
+      this.timeSlotRepo.save({ ...newTimeSlot }),
+    ]);
   }
 }

@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Injectable, Post } from '@nestjs/common';
-import { Param, Patch, Put } from '@nestjs/common/decorators';
+import { Param, Put } from '@nestjs/common/decorators';
 import { TimeSlotService } from 'src/time-slot/time-slot.service';
-import { TaskEditTimeDTO } from './dto/task-edit-time.dto';
 import { EditTaskDTO } from './dto/task-edit.dto';
 import { TaskDTO } from './dto/task.dto';
 import { TaskService } from './task.service';
@@ -14,8 +13,6 @@ export class TaskController {
     private timeSlotService: TimeSlotService,
   ) {}
 
-  // Default -> all for current month
-  // Group by month
   @Get()
   async getUserTaskPerDates() {
     // TODO: Passing user ID and month
@@ -28,14 +25,11 @@ export class TaskController {
     return this.timeSlotService.add({ task, ...createTask });
   }
 
-  @Put(':id')
-  async editTime(@Body() editTask: TaskEditTimeDTO, @Param('id') id: number) {
-    const task = await this.taskService.findOne(id);
-    return this.timeSlotService.add({ task, ...editTask });
-  }
-
-  @Patch(':id')
-  async edit(@Body() editTask: EditTaskDTO, @Param('id') id: number) {
-    return this.taskService.edit(editTask, id);
+  @Put(':slotID')
+  async editTask(
+    @Body() editTask: EditTaskDTO,
+    @Param('slotID') slotID: number,
+  ) {
+    return await this.taskService.edit(editTask, slotID);
   }
 }

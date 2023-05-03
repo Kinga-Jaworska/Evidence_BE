@@ -1,6 +1,6 @@
 import { Optional } from '@nestjs/common';
 
-export class TaskEditTimeDTO {
+export class TaskAddTime {
   @Optional()
   start_time: string;
 
