@@ -10,6 +10,7 @@
 ## DB Connection
 
 Example of .enf file
+
 ```
 DB_HOST=
 DB_PASSWORD=
@@ -29,6 +30,6 @@ ENVIRONMENT=
 
 To run project in dev mode (after establish DB connection): 
 
-```
-start:dev
-```
+
+> npm run start:dev
+
