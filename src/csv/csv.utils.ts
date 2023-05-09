@@ -1,3 +1,5 @@
+import { format } from 'date-fns';
+
 export const getMonthName = (monthIndex: number) => {
   switch (monthIndex) {
     case 1:
@@ -29,19 +31,6 @@ export const getMonthName = (monthIndex: number) => {
   }
 };
 
-export const formatDate = (dateToFormat: Date) => {
-  const date = new Date(dateToFormat);
-
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const year = date.getFullYear();
-
-  const formattedDate = `${day.toString().padStart(2, '0')}-${month
-    .toString()
-    .padStart(2, '0')}-${year}`;
-  return formattedDate;
-};
-
 export const generateListOfDates = (month: number) => {
   const year = new Date().getFullYear();
   const daysInMonth = new Date(year, month, 0).getDate();
@@ -49,8 +38,12 @@ export const generateListOfDates = (month: number) => {
   const dates = [];
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(year, month - 1, day);
-    dates.push(formatDate(date));
+    dates.push(format(date, 'dd-MM-yyyy'));
   }
 
   return dates;
 };
+
+export function getMonthIndex(date: Date) {
+  return date.getMonth() + 1;
+}

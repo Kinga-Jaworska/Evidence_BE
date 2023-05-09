@@ -19,8 +19,11 @@ export class CSVService {
     let overall_amount = 0;
     let rows = Object.keys(data).map((title) => {
       const time_slots = data[title];
+      const { description } = time_slots;
       const row = { title };
       let task_amount = 0;
+
+      row['description'] = description;
 
       dates.forEach((date) => {
         row[date] = time_slots[date] ? `${time_slots[date]}` : '';
@@ -43,6 +46,7 @@ export class CSVService {
       path,
       header: [
         { id: 'title', title: 'Title' },
+        { id: 'description', title: 'Description' },
         ...dates.map((date) => ({
           id: date,
           title: date,

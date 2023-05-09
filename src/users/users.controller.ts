@@ -5,7 +5,7 @@ import {
   Post,
   StreamableFile,
 } from '@nestjs/common';
-import { Param, Res } from '@nestjs/common/decorators';
+import { Param, Query, Res } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { createReadStream } from 'fs';
 import { join } from 'path';
@@ -27,18 +27,20 @@ export class UserController {
 
   @Get(':id')
   async getCSVFilePerUser(
+    @Query('start_date') startDate: string,
     @Res({ passthrough: true }) res: Response,
     @Param('id') id: number,
   ) {
     try {
-      const fileName = await this.taskService.getGroupedTasksPerUser(id);
-      return await this.taskService.getGroupedTasksPerUser(id).then(() => {
-        const file = createReadStream(join(process.cwd(), fileName));
-        res.set({
-          'Content-Type': 'application/csv',
+      return await this.taskService
+        .getGroupedTasksPerUser(id, startDate)
+        .then((fileName) => {
+          const file = createReadStream(join(process.cwd(), fileName));
+          res.set({
+            'Content-Type': 'application/csv',
+          });
+          return new StreamableFile(file);
         });
-        return new StreamableFile(file);
-      });
     } catch (error) {
       return error;
     }

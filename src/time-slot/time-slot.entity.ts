@@ -12,11 +12,8 @@ export class TimeSlot {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 255 })
-  start_time: string;
-
-  @Column({ type: 'varchar', length: 255 })
-  end_time: string;
+  @Column()
+  start_time: Date;
 
   @Column()
   duration: number;

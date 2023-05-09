@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { format } from 'date-fns';
 import { CSVService } from 'src/csv/csv.service';
+import { getMonthIndex } from 'src/csv/csv.utils';
 import { TimeSlot } from 'src/time-slot/time-slot.entity';
 import { Repository } from 'typeorm/repository/Repository';
 import { CreateTaskDTO } from './dto/task-create.dto';
 import { EditTaskDTO } from './dto/task-edit.dto';
 import { Task } from './task.entity';
-
+import { countDuration, setDateRange } from './task.utils';
 @Injectable()
 export class TaskService {
   constructor(
@@ -27,19 +29,24 @@ export class TaskService {
     return this.taskRepo.save(task);
   }
 
-  async getGroupedTasksPerUser(id: number) {
+  async getGroupedTasksPerUser(id: number, month: string) {
     let amountsPerDay = {};
+    const { startDate, endDate } = setDateRange(month);
+
     const tasks = await this.taskRepo
       .createQueryBuilder('tasks')
-      .leftJoinAndSelect('tasks.time_slots', 'time_slots')
+      .innerJoin('tasks.time_slots', 'time_slots')
       .where('tasks.user_id = :id', { id })
+      .andWhere('time_slots.start_time BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
       .select([
         'time_slots.start_time AS start_time',
         'tasks.title AS title',
-        'SUM(time_slots.duration) AS duration',
+        'tasks.description AS description',
+        'time_slots.duration AS duration',
       ])
-      .groupBy('time_slots.start_time')
-      .addGroupBy('tasks.title')
       .getRawMany()
       .then((results) => {
         /* 
@@ -49,25 +56,38 @@ export class TaskService {
           Example: { '01-09-2021': '100', '02-09-2021': '30' } 
         */
         return results.reduce((savedRow, record) => {
-          const { title, start_time, duration } = record;
+          const { title, start_time, duration, description } = record;
+          const formattedDate = format(new Date(start_time), 'dd-MM-yyyy');
 
           if (!savedRow[title]) {
             savedRow[title] = {};
           }
 
-          if (!amountsPerDay[start_time]) {
-            amountsPerDay[start_time] = {};
+          if (!amountsPerDay[formattedDate]) {
+            amountsPerDay[formattedDate] = {};
           }
 
-          savedRow[title][start_time] = duration;
-          amountsPerDay[start_time] =
-            (Number(amountsPerDay[start_time]) || 0) + Number(duration);
+          savedRow[title]['description'] = description;
+
+          savedRow[title][formattedDate] = countDuration(
+            savedRow[title][formattedDate],
+            duration,
+          );
+
+          amountsPerDay[formattedDate] = countDuration(
+            amountsPerDay[formattedDate],
+            duration,
+          );
 
           return savedRow;
         }, {});
       });
 
-    return this.csvService.generateCSV(tasks, amountsPerDay, 4);
+    return this.csvService.generateCSV(
+      tasks,
+      amountsPerDay,
+      getMonthIndex(startDate),
+    );
   }
 
   async getAllTaskPerDate(id: number) {
@@ -80,6 +100,7 @@ export class TaskService {
       .select([
         'time_slots.start_time AS start_time',
         'time_slots.id AS slot_id',
+        'tasks.description AS description',
         'tasks.title AS title',
         'tasks.id AS id',
         'duration',
@@ -92,7 +113,6 @@ export class TaskService {
           if (!savedTask[title]) {
             savedTask[title] = [];
           }
-
           savedTask[title] = [task, ...savedTask[title]];
 
           return savedTask;
