@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { format } from 'date-fns';
+import { join } from 'path';
 import { CSVService } from 'src/csv/csv.service';
 import { getMonthIndex } from 'src/csv/csv.utils';
 import { TimeSlot } from 'src/time-slot/time-slot.entity';
@@ -9,6 +10,12 @@ import { CreateTaskDTO } from './dto/task-create.dto';
 import { EditTaskDTO } from './dto/task-edit.dto';
 import { Task } from './task.entity';
 import { countDuration, setDateRange } from './task.utils';
+
+const fs = require('fs');
+const { google } = require('googleapis');
+
+const GOOGLE_API_FOLDER_ID = '1vTbCvjSk2oMjCDCDrxdVFUCB2UOMlQYJ';
+
 @Injectable()
 export class TaskService {
   constructor(
@@ -16,6 +23,42 @@ export class TaskService {
     @InjectRepository(TimeSlot) private timeSlotRepo: Repository<TimeSlot>,
     private csvService: CSVService,
   ) {}
+
+  async uploadCSVFile(fileName: string) {
+    const file = join(process.cwd(), fileName);
+    try {
+      const auth = new google.auth.GoogleAuth({
+        keyFile: './google-api-key.json',
+        scopes: ['https://www.googleapis.com/auth/drive'],
+      });
+
+      const driveService = google.drive({
+        version: 'v3',
+        auth,
+      });
+
+      const fileMetaData = {
+        name: fileName,
+        parents: [GOOGLE_API_FOLDER_ID],
+      };
+
+      const media = {
+        mimeType: 'text/csv',
+        fileExtension: '.csv',
+        body: fs.createReadStream(file),
+      };
+
+      const response = await driveService.files.create({
+        resource: fileMetaData,
+        media: media,
+        fields: 'id',
+      });
+
+      return response.data.id;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   findAll() {
     return this.taskRepo.find();
@@ -83,11 +126,13 @@ export class TaskService {
         }, {});
       });
 
-    return this.csvService.generateCSV(
+    const file = this.csvService.generateCSV(
       tasks,
       amountsPerDay,
       getMonthIndex(startDate),
     );
+
+    return file;
   }
 
   async getAllTaskPerDate(id: number) {

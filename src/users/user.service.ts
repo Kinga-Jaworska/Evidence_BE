@@ -34,7 +34,7 @@ export class UserService {
   }
 
   async createUser(userDTO: RegisterUserDTO): Promise<User> {
-    const hashedPassword = await bcrypt.hash(userDTO.password, 6);
+    const hashedPassword = await bcrypt.hash(userDTO.password, 4);
 
     return await this.userRepo.save({
       email: userDTO.email,

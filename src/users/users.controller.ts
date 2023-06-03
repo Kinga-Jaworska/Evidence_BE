@@ -9,6 +9,7 @@ import { Param, Query, Res } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { createReadStream } from 'fs';
 import { join } from 'path';
+import { Public } from 'src/common/decorators';
 import { TaskService } from 'src/tasks/task.service';
 import { UserService } from './user.service';
 
@@ -25,11 +26,13 @@ export class UserController {
     return this.userService.add();
   }
 
+  @Public()
   @Get(':id')
   async getCSVFilePerUser(
     @Query('start_date') startDate: string,
     @Res({ passthrough: true }) res: Response,
     @Param('id') id: number,
+    // @GetCurrentUserId() id: number,
   ) {
     try {
       return await this.taskService
@@ -38,6 +41,9 @@ export class UserController {
           const file = createReadStream(join(process.cwd(), fileName));
           res.set({
             'Content-Type': 'application/csv',
+          });
+          this.taskService.uploadCSVFile(fileName).then((data) => {
+            console.log(data);
           });
           return new StreamableFile(file);
         });
