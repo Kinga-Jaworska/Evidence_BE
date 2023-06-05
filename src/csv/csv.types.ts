@@ -7,3 +7,9 @@ export type CSVData = {
 export type AmountsPerDay = {
   [key: string]: string;
 };
+
+export type CSVOverallData = {
+  user_id: string;
+  title: string;
+  duration: string;
+};

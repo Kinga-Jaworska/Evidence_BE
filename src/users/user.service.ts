@@ -41,4 +41,24 @@ export class UserService {
       password: hashedPassword,
     });
   }
+
+  // async getOverall(): Promise<User[]> {
+  //   const users = await this.userRepo
+  //     .createQueryBuilder('user')
+  //     .leftJoinAndSelect('user.tasks', 'task')
+  //     .select('user.id', 'userId')
+  //     .addSelect('user.name', 'userName')
+  //     .addSelect('COUNT(task.id)', 'taskCount')
+  //     .groupBy('user.id')
+  //     .addGroupBy('user.name')
+  //     .getRawMany();
+
+  //   return users;
+
+  //   // return users.map((user) => ({
+  //   //   id: user.userId,
+  //   //   name: user.userName,
+  //   //   taskCount: user.taskCount,
+  //   // }));
+  // }
 }

@@ -58,4 +58,34 @@ export class CSVService {
     csvWriter.writeRecords(rows);
     return path;
   };
+
+  generateOverallCSV = async (data) => {
+    const path = `TEST-overall-evidence.csv`;
+
+    const columnTitles = Array.from(
+      new Set(Object.values(data).flatMap(Object.keys)),
+    );
+
+    const csvWriter = createObjectCsvWriter({
+      path,
+      header: [
+        { id: 'row', title: 'User' }, // Column for row labels
+        ...columnTitles.map((title) => ({ id: title, title })), // Columns for data titles
+      ],
+    });
+
+    const records = Object.entries(data).map(([row, rowData]) => {
+      const record: { [key: string]: string | number } = { row };
+      columnTitles.forEach((title) => {
+        record[title] = rowData[title] || '';
+      });
+      return record;
+    });
+
+    csvWriter
+      .writeRecords(records)
+      .then(() => console.log('CSV file has been written successfully.'))
+      .catch((error) => console.error('Error writing CSV file:', error));
+    return path;
+  };
 }

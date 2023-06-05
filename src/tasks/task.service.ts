@@ -72,6 +72,63 @@ export class TaskService {
     return this.taskRepo.save(task);
   }
 
+  async getOverall() {
+    const { startDate, endDate } = setDateRange('czerwiec');
+    let amountsPerDay = {};
+
+    // USER_NAME: { 'PROJECT_NAME': 'added_amount_for_this_user', 'PROJECT_NAME_2': 'added_amount' }
+    // TASK NAME - PROJECT but now im dont have project table
+    // AMOUNT for month -> grouped by project and per user
+    // month grouped by user and then by project
+    // let amountsPerDay = {};
+    const tasks = await this.taskRepo
+      .createQueryBuilder('tasks')
+      .innerJoin('tasks.time_slots', 'time_slots')
+      // .where('tasks.user_id = :id', { id })
+      .andWhere('time_slots.start_time BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
+      .select([
+        'time_slots.start_time AS start_time',
+        'tasks.title AS title',
+        'tasks.description AS description',
+        'time_slots.duration AS duration',
+        'tasks.user_id AS user_id',
+      ])
+      .getRawMany()
+      .then((results) => {
+        /* 
+        Create one object per each tasks title
+          Example: 'Task new 5': { '01-09-2021': '100', '06-09-2021': '30' } 
+        Create one object per each date with overall amount
+          Example: { '01-09-2021': '100', '02-09-2021': '30' } 
+        */
+        return results.reduce((savedRow, record) => {
+          const { title, start_time, duration, description, user_id } = record;
+
+          if (!savedRow[user_id]) {
+            savedRow[user_id] = {};
+          }
+
+          if (!savedRow[user_id][title]) {
+            savedRow[user_id][title] = 0;
+          }
+
+          savedRow[user_id][title] += duration;
+
+          return savedRow;
+        }, {});
+      });
+
+    const file = this.csvService.generateOverallCSV(
+      tasks,
+      // amountsPerDay,
+      // getMonthIndex(startDate),
+    );
+    return tasks;
+  }
+
   async getGroupedTasksPerUser(id: number, month: string) {
     let amountsPerDay = {};
     const { startDate, endDate } = setDateRange(month);
