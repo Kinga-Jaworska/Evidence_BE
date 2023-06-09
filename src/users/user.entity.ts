@@ -1,4 +1,4 @@
-import { IsEmail } from 'class-validator';
+import { IsEmail, IsString } from 'class-validator';
 import { Task } from 'src/tasks/task.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -11,11 +11,12 @@ export class User {
   refresh_token: string;
 
   @Column()
-  password: string;
-
-  @Column()
   @IsEmail()
   email: string;
+
+  @Column()
+  @IsString()
+  username: string;
 
   @OneToMany(() => Task, (tasks) => tasks.user_id)
   tasks: Task[];

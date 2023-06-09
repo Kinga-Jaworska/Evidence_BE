@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm/dist';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { JwtStrategy } from './auth/strategies';
 import { JwtAuthGuard } from './common/guards';
@@ -22,6 +22,7 @@ import { UserController } from './users/users.controller';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({}),
     TypeOrmModule.forRoot({
       ...(dbOptions as TypeOrmModuleOptions),
     }),
@@ -29,7 +30,7 @@ import { UserController } from './users/users.controller';
     JwtModule.register({}),
   ],
   controllers: [
-    AuthController,
+    // AuthController,
     AppController,
     TaskController,
     TimeSlotController,
