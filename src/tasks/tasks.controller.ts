@@ -14,8 +14,8 @@ export class TaskController {
     private timeSlotService: TimeSlotService,
   ) {}
 
-  @Get()
-  async getUserTaskPerDates(@GetCurrentUserId() userId: number) {
+  @Get(':id')
+  async getUserTaskPerDates(@Param('id') userId: number) {
     // TODO: Passing user ID and month
     return await this.taskService.getAllTaskPerDate(userId);
   }

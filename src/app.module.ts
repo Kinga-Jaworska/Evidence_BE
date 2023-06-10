@@ -1,13 +1,10 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm/dist';
+import { AuthMiddleware } from 'middleware/google.middleware';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
-import { JwtStrategy } from './auth/strategies';
-import { JwtAuthGuard } from './common/guards';
 import { CSVService } from './csv/csv.service';
 import { dbOptions } from './db/data-source';
 import { Task } from './tasks/task.entity';
@@ -27,7 +24,7 @@ import { UserController } from './users/users.controller';
       ...(dbOptions as TypeOrmModuleOptions),
     }),
     TypeOrmModule.forFeature([User, TimeSlot, Task]),
-    JwtModule.register({}),
+    // JwtModule.register({}),
   ],
   controllers: [
     // AuthController,
@@ -38,16 +35,22 @@ import { UserController } from './users/users.controller';
   ],
   providers: [
     AuthService,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: JwtAuthGuard,
+    // },
     AppService,
     TaskService,
     TimeSlotService,
     UserService,
     CSVService,
-    JwtStrategy,
+    // JwtStrategy,
+    // GoogleStrategy,
   ],
 })
-export class AppModule {}
+// export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes('/api/v1');
+  }
+}
