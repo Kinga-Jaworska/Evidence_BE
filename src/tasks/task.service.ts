@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { format } from 'date-fns';
-import { join } from 'path';
 import { CSVService } from 'src/csv/csv.service';
 import { getMonthIndex } from 'src/csv/csv.utils';
 import { TimeSlot } from 'src/time-slot/time-slot.entity';
@@ -24,42 +23,6 @@ export class TaskService {
     private csvService: CSVService,
   ) {}
 
-  async uploadCSVFile(fileName: string) {
-    const file = join(process.cwd(), fileName);
-    try {
-      const auth = new google.auth.GoogleAuth({
-        keyFile: './google-api-key.json',
-        scopes: ['https://www.googleapis.com/auth/drive'],
-      });
-
-      const driveService = google.drive({
-        version: 'v3',
-        auth,
-      });
-
-      const fileMetaData = {
-        name: fileName,
-        parents: [GOOGLE_API_FOLDER_ID],
-      };
-
-      const media = {
-        mimeType: 'text/csv',
-        fileExtension: '.csv',
-        body: fs.createReadStream(file),
-      };
-
-      const response = await driveService.files.create({
-        resource: fileMetaData,
-        media: media,
-        fields: 'id',
-      });
-
-      return response.data.id;
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   findAll() {
     return this.taskRepo.find();
   }
@@ -74,59 +37,54 @@ export class TaskService {
 
   async getOverall() {
     const { startDate, endDate } = setDateRange('czerwiec');
-    let amountsPerDay = {};
+    console.log('startDate', startDate);
 
     // USER_NAME: { 'PROJECT_NAME': 'added_amount_for_this_user', 'PROJECT_NAME_2': 'added_amount' }
     // TASK NAME - PROJECT but now im dont have project table
     // AMOUNT for month -> grouped by project and per user
     // month grouped by user and then by project
-    // let amountsPerDay = {};
     const tasks = await this.taskRepo
       .createQueryBuilder('tasks')
       .innerJoin('tasks.time_slots', 'time_slots')
-      // .where('tasks.user_id = :id', { id })
+      .innerJoin('tasks.user', 'user') // Update the join to use tasks.user
       .andWhere('time_slots.start_time BETWEEN :startDate AND :endDate', {
         startDate,
         endDate,
       })
       .select([
         'time_slots.start_time AS start_time',
-        'tasks.title AS title',
+        'tasks.project_name AS project_name',
         'tasks.description AS description',
         'time_slots.duration AS duration',
-        'tasks.user_id AS user_id',
+        'user.username AS username',
       ])
       .getRawMany()
       .then((results) => {
-        /* 
+        /*
         Create one object per each tasks title
-          Example: 'Task new 5': { '01-09-2021': '100', '06-09-2021': '30' } 
+          Example: 'Task new 5': { '01-09-2021': '100', '06-09-2021': '30' }
         Create one object per each date with overall amount
-          Example: { '01-09-2021': '100', '02-09-2021': '30' } 
+          Example: { '01-09-2021': '100', '02-09-2021': '30' }
         */
         return results.reduce((savedRow, record) => {
-          const { title, start_time, duration, description, user_id } = record;
+          const { project_name, duration, username } = record;
 
-          if (!savedRow[user_id]) {
-            savedRow[user_id] = {};
+          if (!savedRow[username]) {
+            savedRow[username] = {};
           }
 
-          if (!savedRow[user_id][title]) {
-            savedRow[user_id][title] = 0;
+          if (!savedRow[username][project_name]) {
+            savedRow[username][project_name] = 0;
           }
 
-          savedRow[user_id][title] += duration;
+          savedRow[username][project_name] += duration;
 
           return savedRow;
         }, {});
       });
 
-    const file = this.csvService.generateOverallCSV(
-      tasks,
-      // amountsPerDay,
-      // getMonthIndex(startDate),
-    );
-    return tasks;
+    const file = this.csvService.generateOverallCSV(tasks);
+    return file;
   }
 
   async getGroupedTasksPerUser(id: number, month: string) {
@@ -143,34 +101,34 @@ export class TaskService {
       })
       .select([
         'time_slots.start_time AS start_time',
-        'tasks.title AS title',
+        'tasks.project_name AS project_name',
         'tasks.description AS description',
         'time_slots.duration AS duration',
       ])
       .getRawMany()
       .then((results) => {
         /* 
-        Create one object per each tasks title
+        Create one object per each tasks project_name
           Example: 'Task new 5': { '01-09-2021': '100', '06-09-2021': '30' } 
         Create one object per each date with overall amount
           Example: { '01-09-2021': '100', '02-09-2021': '30' } 
         */
         return results.reduce((savedRow, record) => {
-          const { title, start_time, duration, description } = record;
+          const { project_name, start_time, duration, description } = record;
           const formattedDate = format(new Date(start_time), 'dd-MM-yyyy');
 
-          if (!savedRow[title]) {
-            savedRow[title] = {};
+          if (!savedRow[project_name]) {
+            savedRow[project_name] = {};
           }
 
           if (!amountsPerDay[formattedDate]) {
             amountsPerDay[formattedDate] = {};
           }
 
-          savedRow[title]['description'] = description;
+          savedRow[project_name]['description'] = description;
 
-          savedRow[title][formattedDate] = countDuration(
-            savedRow[title][formattedDate],
+          savedRow[project_name][formattedDate] = countDuration(
+            savedRow[project_name][formattedDate],
             duration,
           );
 
@@ -203,19 +161,19 @@ export class TaskService {
         'time_slots.start_time AS start_time',
         'time_slots.id AS slot_id',
         'tasks.description AS description',
-        'tasks.title AS title',
+        'tasks.project_name AS project_name',
         'tasks.id AS id',
         'duration',
       ])
       .getRawMany()
       .then((results) => {
         return results.reduce((savedTask, task) => {
-          const { title } = task;
+          const { project_name } = task;
 
-          if (!savedTask[title]) {
-            savedTask[title] = [];
+          if (!savedTask[project_name]) {
+            savedTask[project_name] = [];
           }
-          savedTask[title] = [task, ...savedTask[title]];
+          savedTask[project_name] = [task, ...savedTask[project_name]];
 
           return savedTask;
         }, {});
@@ -225,7 +183,7 @@ export class TaskService {
   }
 
   async edit(editTask: EditTaskDTO, slotID: number) {
-    const { title, description, ...slot } = editTask;
+    const { project_name, description, ...slot } = editTask;
     const { task, ...timeSlot } = await this.timeSlotRepo.findOne({
       where: {
         id: slotID,
@@ -237,7 +195,7 @@ export class TaskService {
 
     const newTask = {
       ...task,
-      ...(title && { title }),
+      ...(project_name && { project_name }),
       ...(description && { description }),
     };
 

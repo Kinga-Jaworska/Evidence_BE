@@ -2,7 +2,7 @@ import { IsOptional } from 'class-validator';
 
 export class EditTaskDTO {
   @IsOptional()
-  title: string;
+  project_name: string;
 
   @IsOptional()
   description: string;

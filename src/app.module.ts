@@ -5,8 +5,10 @@ import { AuthMiddleware } from 'middleware/google.middleware';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
+import { CSVController } from './csv/csv.controller';
 import { CSVService } from './csv/csv.service';
 import { dbOptions } from './db/data-source';
+import { GoogleDriveService } from './google-drive/google-drive.service';
 import { Task } from './tasks/task.entity';
 import { TaskService } from './tasks/task.service';
 import { TaskController } from './tasks/tasks.controller';
@@ -32,6 +34,7 @@ import { UserController } from './users/users.controller';
     TaskController,
     TimeSlotController,
     UserController,
+    CSVController,
   ],
   providers: [
     AuthService,
@@ -44,6 +47,7 @@ import { UserController } from './users/users.controller';
     TimeSlotService,
     UserService,
     CSVService,
+    GoogleDriveService,
     // JwtStrategy,
     // GoogleStrategy,
   ],

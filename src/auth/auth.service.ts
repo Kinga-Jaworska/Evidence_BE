@@ -17,19 +17,6 @@ export class AuthService {
       return createdUser;
     }
 
-    console.log(userExist);
     return userExist;
-
-    // const user = await this.userService.findOneByEmail(userDTO.email);
-
-    // if (!user) throw new ForbiddenException('Access denied');
-
-    // if (!(await bcrypt.compare(userDTO.password, user.password))) {
-    //   throw new ForbiddenException('Access denied');
-    // }
-
-    // const tokens = await this.getTokens(user.email, user.id);
-    // await this.updateRefreshToken(tokens.refresh_token, user.id);
-    // return tokens;
   }
 }

@@ -47,3 +47,11 @@ export const generateListOfDates = (month: number) => {
 export function getMonthIndex(date: Date) {
   return date.getMonth() + 1;
 }
+
+export const changeDurationFormatToString = (duration: number) => {
+  if (duration < 60) return `${duration % 60}m`;
+  else
+    return duration % 60 != 0
+      ? `${Math.floor(duration / 60)}h${duration % 60}m`
+      : `${Math.floor(duration / 60)}h`;
+};

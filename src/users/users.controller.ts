@@ -9,7 +9,7 @@ import { Param, Query, Res } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { createReadStream } from 'fs';
 import { join } from 'path';
-import { Public } from 'src/common/decorators';
+import { GoogleDriveService } from 'src/google-drive/google-drive.service';
 import { TaskService } from 'src/tasks/task.service';
 import { UserService } from './user.service';
 
@@ -19,6 +19,7 @@ export class UserController {
   constructor(
     private userService: UserService,
     private taskService: TaskService,
+    private googleDriveService: GoogleDriveService,
   ) {}
 
   @Post()
@@ -26,13 +27,11 @@ export class UserController {
     return this.userService.add();
   }
 
-  @Public()
   @Get(':id')
   async getCSVFilePerUser(
     @Query('start_date') startDate: string,
     @Res({ passthrough: true }) res: Response,
     @Param('id') id: number,
-    // @GetCurrentUserId() id: number,
   ) {
     try {
       return await this.taskService
@@ -42,19 +41,16 @@ export class UserController {
           res.set({
             'Content-Type': 'application/csv',
           });
-          this.taskService.uploadCSVFile(fileName).then((data) => {
-            console.log(data);
-          });
+
+          this.googleDriveService
+            .uploadCompanyCSVFile(fileName)
+            .then((data) => {
+              console.log(data);
+            });
           return new StreamableFile(file);
         });
     } catch (error) {
       return error;
     }
   }
-
-  // @Get('overall')
-  // @Public()
-  // async getOverall() {
-  //   return await this.userService.getOverall();
-  // }
 }

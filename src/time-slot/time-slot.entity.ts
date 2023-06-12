@@ -16,7 +16,7 @@ export class TimeSlot {
   start_time: Date;
 
   @Column()
-  duration: number;
+  duration: number; // MINUTES
 
   @ManyToOne(() => Task, (task: Task) => task.time_slots)
   @JoinColumn({ name: 'task_id' })

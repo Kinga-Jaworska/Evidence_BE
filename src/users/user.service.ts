@@ -33,31 +33,9 @@ export class UserService {
   }
 
   async createUser(userDTO: RegisterUserDTO): Promise<User> {
-    // const hashedPassword = await bcrypt.hash(userDTO.password, 4);
-
     return await this.userRepo.save({
       email: userDTO.email,
       username: userDTO.username,
     });
   }
-
-  // async getOverall(): Promise<User[]> {
-  //   const users = await this.userRepo
-  //     .createQueryBuilder('user')
-  //     .leftJoinAndSelect('user.tasks', 'task')
-  //     .select('user.id', 'userId')
-  //     .addSelect('user.name', 'userName')
-  //     .addSelect('COUNT(task.id)', 'taskCount')
-  //     .groupBy('user.id')
-  //     .addGroupBy('user.name')
-  //     .getRawMany();
-
-  //   return users;
-
-  //   // return users.map((user) => ({
-  //   //   id: user.userId,
-  //   //   name: user.userName,
-  //   //   taskCount: user.taskCount,
-  //   // }));
-  // }
 }

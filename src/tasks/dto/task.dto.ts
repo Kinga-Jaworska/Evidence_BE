@@ -1,8 +1,8 @@
-import { IsString, IsOptional, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class TaskDTO {
   @IsString()
-  title: string;
+  project_name: string;
 
   @IsString()
   @IsOptional()
@@ -10,9 +10,6 @@ export class TaskDTO {
 
   @IsNotEmpty()
   start_time: string;
-
-  @IsNotEmpty()
-  end_time: string;
 
   @IsNumber()
   duration: number;

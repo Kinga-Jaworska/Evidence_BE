@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { createObjectCsvWriter } from 'csv-writer';
 import { AmountsPerDay, CSVData } from './csv.types';
-import { generateListOfDates, getMonthName } from './csv.utils';
+import {
+  changeDurationFormatToString,
+  generateListOfDates,
+  getMonthName,
+} from './csv.utils';
 
 @Injectable()
 export class CSVService {
@@ -17,10 +21,10 @@ export class CSVService {
 
     // Create rows per each task
     let overall_amount = 0;
-    let rows = Object.keys(data).map((title) => {
-      const time_slots = data[title];
+    let rows = Object.keys(data).map((project_name) => {
+      const time_slots = data[project_name];
       const { description } = time_slots;
-      const row = { title };
+      const row = { project_name };
       let task_amount = 0;
 
       row['description'] = description;
@@ -29,11 +33,13 @@ export class CSVService {
         row[date] = time_slots[date] ? `${time_slots[date]}` : '';
         task_amount += Number(time_slots[date]) || 0;
 
-        row['task_amount'] = task_amount;
+        row['task_amount'] = changeDurationFormatToString(task_amount);
 
-        if (title === 'sum') {
-          row[date] = amountsPerDay[date];
-          row['task_amount'] = overall_amount;
+        if (project_name === 'sum') {
+          row[date] = amountsPerDay[date]
+            ? changeDurationFormatToString(+amountsPerDay[date])
+            : amountsPerDay[date];
+          row['task_amount'] = changeDurationFormatToString(overall_amount);
         }
       });
 
@@ -45,7 +51,7 @@ export class CSVService {
     const csvWriter = createObjectCsvWriter({
       path,
       header: [
-        { id: 'title', title: 'Title' },
+        { id: 'project_name', title: 'Project name' },
         { id: 'description', title: 'Description' },
         ...dates.map((date) => ({
           id: date,
@@ -70,14 +76,17 @@ export class CSVService {
       path,
       header: [
         { id: 'row', title: 'User' }, // Column for row labels
-        ...columnTitles.map((title) => ({ id: title, title })), // Columns for data titles
+        ...columnTitles.map((title) => ({
+          id: title,
+          title,
+        })), // Columns for data titles
       ],
     });
 
     const records = Object.entries(data).map(([row, rowData]) => {
       const record: { [key: string]: string | number } = { row };
-      columnTitles.forEach((title) => {
-        record[title] = rowData[title] || '';
+      columnTitles.forEach((project_name) => {
+        record[project_name] = rowData[project_name] || '';
       });
       return record;
     });
@@ -86,6 +95,8 @@ export class CSVService {
       .writeRecords(records)
       .then(() => console.log('CSV file has been written successfully.'))
       .catch((error) => console.error('Error writing CSV file:', error));
+
+    console.log(records);
     return path;
   };
 }
