@@ -29,6 +29,9 @@ DB_HOST=
 DB_USER=
 DB_PORT=
 ENVIRONMENT=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URL=
 ```
 
 1. In cmd you should login by command psql -U name_of_user using user that will be save in .env file as DATABASE_USER
