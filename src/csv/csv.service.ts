@@ -66,7 +66,7 @@ export class CSVService {
   };
 
   generateOverallCSV = async (data) => {
-    const path = `TEST-overall-evidence.csv`;
+    const path = `overall-report-evidence.csv`;
 
     const columnTitles = Array.from(
       new Set(Object.values(data).flatMap(Object.keys)),
@@ -98,7 +98,6 @@ export class CSVService {
       .then(() => console.log('CSV file has been written successfully.'))
       .catch((error) => console.error('Error writing CSV file:', error));
 
-    console.log(records);
     return path;
   };
 }
