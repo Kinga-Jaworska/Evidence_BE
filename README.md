@@ -41,7 +41,7 @@ GOOGLE_REDIRECT_URL=
 
 ## Run Project
 
-To run project in dev mode (after establish DB connection): 
+To run project in dev mode (after establish DB connection) + add google-api-key.json generated from google api console: 
 
 
 > npm run start:dev
