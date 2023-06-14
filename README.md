@@ -7,7 +7,7 @@ BE part of application allows to:
 * creating overall report per each user with logged hours and saving it in company google drive
 
 ## Used tech | libs
-* csv writer
+* Csv-writer
 * Google API (OAuth API + Drive)
 
 ## Requirements
