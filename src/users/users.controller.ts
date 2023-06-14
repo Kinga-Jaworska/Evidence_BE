@@ -5,7 +5,7 @@ import {
   Post,
   StreamableFile,
 } from '@nestjs/common';
-import { Param, Query, Res } from '@nestjs/common/decorators';
+import { Headers, Param, Query, Res } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { createReadStream } from 'fs';
 import { join } from 'path';
@@ -32,6 +32,7 @@ export class UserController {
     @Query('start_date') startDate: string,
     @Res({ passthrough: true }) res: Response,
     @Param('id') id: number,
+    @Headers('authorization') authorization: string,
   ) {
     try {
       return await this.taskService
@@ -42,15 +43,20 @@ export class UserController {
             'Content-Type': 'application/csv',
           });
 
-          this.googleDriveService
-            .uploadCompanyCSVFile(fileName)
-            .then((data) => {
-              console.log(data);
-            });
+          // TODO: make it work with google drive of logged user
+          if (authorization) {
+            const accessToken = authorization.split(' ')[1];
+            this.googleDriveService
+              .uploadUserCSVFile(fileName, accessToken)
+              .then((data) => {
+                console.log(data);
+              });
+          }
+
           return new StreamableFile(file);
         });
     } catch (error) {
-      return error;
+      console.log('error', error);
     }
   }
 }

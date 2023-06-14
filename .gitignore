@@ -35,3 +35,6 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 .env
+
+# JSON GOOGLE API
+google-api-key.json

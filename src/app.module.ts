@@ -26,10 +26,8 @@ import { UserController } from './users/users.controller';
       ...(dbOptions as TypeOrmModuleOptions),
     }),
     TypeOrmModule.forFeature([User, TimeSlot, Task]),
-    // JwtModule.register({}),
   ],
   controllers: [
-    // AuthController,
     AppController,
     TaskController,
     TimeSlotController,
@@ -38,23 +36,17 @@ import { UserController } from './users/users.controller';
   ],
   providers: [
     AuthService,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: JwtAuthGuard,
-    // },
     AppService,
     TaskService,
     TimeSlotService,
     UserService,
     CSVService,
     GoogleDriveService,
-    // JwtStrategy,
-    // GoogleStrategy,
   ],
 })
-// export class AppModule {}
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    // TODO: Make it in better way
     consumer.apply(AuthMiddleware).forRoutes('/api/v1');
   }
 }

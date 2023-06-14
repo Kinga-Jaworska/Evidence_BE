@@ -5,9 +5,7 @@ import { RegisterUserDTO } from './dto/register-user.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private userService: UserService, // private jwtService: JwtService,
-  ) {}
+  constructor(private userService: UserService) {}
 
   async login(userDTO: RegisterUserDTO) {
     const userExist = await this.userService.findOneByEmail(userDTO.email);

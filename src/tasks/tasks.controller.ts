@@ -18,7 +18,7 @@ export class TaskController {
 
   @Get(':id')
   async getUserTaskPerDates(@Param('id') userId: number) {
-    // TODO: Passing user ID and month
+    // TODO: Passing user ID by @GetCurrentUser and month
     return await this.taskService.getAllTaskPerDate(userId);
   }
 

@@ -10,11 +10,6 @@ import { EditTaskDTO } from './dto/task-edit.dto';
 import { Task } from './task.entity';
 import { countDuration, setDateRange } from './task.utils';
 
-const fs = require('fs');
-const { google } = require('googleapis');
-
-const GOOGLE_API_FOLDER_ID = '1vTbCvjSk2oMjCDCDrxdVFUCB2UOMlQYJ';
-
 @Injectable()
 export class TaskService {
   constructor(

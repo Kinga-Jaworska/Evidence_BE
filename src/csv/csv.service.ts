@@ -75,18 +75,20 @@ export class CSVService {
     const csvWriter = createObjectCsvWriter({
       path,
       header: [
-        { id: 'row', title: 'User' }, // Column for row labels
+        { id: 'row', title: 'User' },
         ...columnTitles.map((title) => ({
           id: title,
           title,
-        })), // Columns for data titles
+        })),
       ],
     });
 
     const records = Object.entries(data).map(([row, rowData]) => {
       const record: { [key: string]: string | number } = { row };
       columnTitles.forEach((project_name) => {
-        record[project_name] = rowData[project_name] || '';
+        record[project_name] = changeDurationFormatToString(
+          rowData[project_name] || '',
+        );
       });
       return record;
     });

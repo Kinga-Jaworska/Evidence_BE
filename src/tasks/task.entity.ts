@@ -26,7 +26,7 @@ export class Task {
   @OneToMany(() => TimeSlot, (time_slot) => time_slot.task)
   time_slots: TimeSlot[];
 
-  @ManyToOne(() => User, (user) => user.tasks) // Define the Many-to-One relationship with User entity
-  @JoinColumn({ name: 'user_id' }) // Specify the join column
-  user: User; // Add the user property
+  @ManyToOne(() => User, (user) => user.tasks)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 }

@@ -41,4 +41,44 @@ export class GoogleDriveService {
       console.log(error);
     }
   }
+
+  async uploadUserCSVFile(
+    fileName: string,
+    accessToken: string,
+  ): Promise<string> {
+    const file = join(process.cwd(), fileName);
+
+    try {
+      const auth = new google.auth.OAuth2({
+        keyFile: './google-api-key.json',
+        scopes: ['https://www.googleapis.com/auth/drive'],
+      });
+
+      auth.setCredentials({ access_token: accessToken });
+
+      const driveService = google.drive({
+        version: 'v3',
+        auth,
+      });
+
+      const fileMetaData = {
+        name: fileName,
+      };
+
+      const media = {
+        mimeType: 'text/csv',
+        body: file,
+      };
+
+      const response = await driveService.files.create({
+        resource: fileMetaData,
+        media: media,
+        fields: 'id',
+      });
+
+      return response.data.id;
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
