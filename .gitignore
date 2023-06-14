@@ -37,4 +37,4 @@ lerna-debug.log*
 .env
 
 # JSON GOOGLE API
-google-api-key.json
+*google-api-key.json
