@@ -48,8 +48,8 @@ To run project in dev mode (after establish DB connection) + add google-api-key.
 ## Planned features
 <img width="816" alt="image" src="https://github.com/Kinga-Jaworska/Evidence_BE/assets/67658221/f3a6b453-8be8-4dd7-a890-7a425177f694">
 
-- [ ] User Service
-- [ ] Task Service
-- [ ] Notification Service
-- [ ] CSV Generator
-- [ ] Request Service
+- [x] User Service (P3)
+- [x] Task Service (P1)
+- [ ] Notification Service (P4)
+- [x] CSV Generator (P2)
+- [ ] Request Service (-)
