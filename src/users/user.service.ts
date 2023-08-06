@@ -34,6 +34,7 @@ export class UserService {
 
   async createUser(userDTO: RegisterUserDTO): Promise<User> {
     return await this.userRepo.save({
+      id: +userDTO.id,
       email: userDTO.email,
       username: userDTO.username,
     });

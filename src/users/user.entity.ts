@@ -1,10 +1,11 @@
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Task } from 'src/tasks/task.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn({ type: 'numeric' })
+  @IsNotEmpty()
   id: number;
 
   @Column({ nullable: true })

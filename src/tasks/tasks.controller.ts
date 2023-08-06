@@ -16,16 +16,17 @@ export class TaskController {
     private timeSlotService: TimeSlotService,
   ) {}
 
-  @Get(':id')
-  async getUserTaskPerDates(@Param('id') userId: number) {
-    // TODO: Passing user ID by @GetCurrentUser and month
-    return await this.taskService.getAllTaskPerDate(userId);
+  @Get()
+  async getUserTaskPerDates(@GetCurrentUserId() id: number) {
+    // TODO: Passing month
+    return await this.taskService.getAllTaskPerDate(id);
   }
 
   @Post()
-  async add(@Body() createTask: TaskDTO, @GetCurrentUserId() userId: number) {
-    const task = await this.taskService.add(createTask);
-    return this.timeSlotService.add({ task, ...createTask });
+  async add(@Body() createTask: TaskDTO, @GetCurrentUserId() userID: number) {
+    console.log('ID current', userID);
+    const task = await this.taskService.add(createTask, userID);
+    // return this.timeSlotService.add({ task, ...createTask });
   }
 
   @Put(':slotID')

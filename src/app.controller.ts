@@ -24,7 +24,10 @@ export class AppController {
 
     const payload = ticket.getPayload();
 
+    console.log('LOGIN', +payload.sub);
+
     const data = await this.authService.login({
+      id: +payload.sub,
       email: payload.email,
       username: payload.name,
     });

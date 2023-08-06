@@ -26,8 +26,10 @@ export class TaskService {
     return this.taskRepo.findOneBy({ id });
   }
 
-  add(task: CreateTaskDTO) {
-    return this.taskRepo.save(task);
+  add(task: CreateTaskDTO, userID: number) {
+    console.log('userID', userID);
+    console.log('');
+    return this.taskRepo.save({ ...task, user_id: userID });
   }
 
   async getOverall() {

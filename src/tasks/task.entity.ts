@@ -20,13 +20,15 @@ export class Task {
   @Column({ type: 'varchar', length: 255 })
   description: string;
 
-  @Column()
+  @Column({ type: 'numeric' })
   user_id: number;
 
   @OneToMany(() => TimeSlot, (time_slot) => time_slot.task)
   time_slots: TimeSlot[];
 
-  @ManyToOne(() => User, (user) => user.tasks)
+  @ManyToOne(() => User, (user) => user.tasks, {
+    cascade: ['insert', 'update'],
+  })
   @JoinColumn({ name: 'user_id' })
   user: User;
 }
